@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<head>
+    <title>All users</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script language="javascript"></script>
+    <style>
+    div.hidden {
+        visibility: hidden;
+    }
+    </style>
+</head>
+<body onload="sendUpdateRequest()">
+
+
+<script>
+
+    function sendUpdateRequest() {
+        var userId = document.getElementById("id").innerHTML;
+        console.log("id=", userId);
+        var url = "http://localhost:8080/user/test/"+userId;
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open('GET', url, true);
+            xmlhttp.setRequestHeader('Content-Type', 'application/json')
+            xmlhttp.send();
+            xmlhttp.onreadystatechange = function() {
+               if (xmlhttp.readyState == 4) {
+                  if ( xmlhttp.status == 200) {
+                    var user = xmlhttp.response;
+                    console.log("user", JSON.parse(user));
+                    fillForm(JSON.parse(user));
+                 }
+              }
+        };
+    }
+    function fillForm(user){
+            var name = document.getElementById("name");
+            if(user.name != undefined){
+                name.value = user.name;
+            }
+
+            var password = document.getElementById("password");
+            if(user.password != undefined){
+                password.value = user.password;
+            }
+
+            var firstName = document.getElementById("firstName");
+            if(user.firstName != undefined){
+                firstName.value = user.firstName;
+            }
+
+            var lastName = document.getElementById("lastName");
+            if(user.lastName != undefined){
+                lastName.value = user.lastName;
+            }
+
+            var birthday = document.getElementById("birthday");
+            if(user.birthday != undefined){
+                birthday.value = user.birthday;
+            }
+
+            var userGroupList = document.getElementById("userGroupList");
+            if(user.userGroupList != undefined){
+                userGroupList.value = user.userGroups;
+            }
+    }
+
+    function updateUser(form){
+        var name = form.name.value;
+        var password = form.password.value;
+        var firstName = form.firstName.value;
+        var lastName = form.lastName.value;
+        var dateOfBirth = form.birthday.value;
+        var groupList = form.userGroupList.value.split(",");
+        var userGroups = [];
+        for(var i = 0; i < groupList.length; i++){
+            userGroups.push({"name": groupList[i]});
+        }
+
+        var userJSON = {"name" : name,
+        "password": password,
+        "firstName": firstName,
+        "lastName": lastName,
+        "dateOfBirth": dateOfBirth,
+        "userGroups": userGroups}
+        console.log("User:", userJSON);
+        console.log("User:", JSON.stringify(userJSON));
+            var url = "http://localhost:8080/user/";
+            var xmlhttp = new XMLHttpRequest();
+
+            xmlhttp.open('PUT', url, true);
+            xmlhttp.setRequestHeader('Content-Type', 'application/json')
+            xmlhttp.send(JSON.stringify(userJSON));
+            xmlhttp.onreadystatechange = function() {
+
+                   if (xmlhttp.readyState == 4) {
+                      if ( xmlhttp.status == 200) {
+                          console.log(xmlhttp.response);
+                            location.href='http://localhost:8081/users'
+                           }
+                     }
+                  }
+        }
+</script>
+
+<p id="demo"></p>
+<div class="hidden" id="userId">
+    <p id="id" th:text="${id}"></p>
+</div>
+
+<div class="container">
+
+    <h2>Zmień dane użytkownika</h2>
+    <form>
+        <div class="form-group">
+            <label for="name">Nazwa:</label>
+            <input type="name" class="form-control" id="name"  name="name">
+        </div>
+        <div class="form-group">
+            <label for="password">Hasło:</label>
+            <input type="password" class="form-control" id="password" name="password">
+        </div>
+        <div class="form-group">
+            <label for="firstName">Imię:</label>
+            <input type="firstName" class="form-control" id="firstName" name="firstName">
+        </div>
+        <div class="form-group">
+            <label for="lastName">Nazwisko:</label>
+            <input type="lastName" class="form-control" id="lastName" name="lastName">
+        </div>
+        <div class="form-group">
+            <label for="birthday">Data urodzenia:</label>
+            <input type="birthday" class="form-control" id="birthday" name="birthday">
+        </div>
+        <div class="form-group">
+            <label for="userGroupList">Lista grup użytkowników:</label>
+            <input type="userGroupList" class="form-control" id="userGroupList" name="userGroupList">
+        </div>
+        <input type="button" name="submit" class="btn btn-default" value="Zaktualizuj" onclick="updateUser(this.form)">
+    </form>
+
+</div>
+
+
+
+</body>
+</html>
